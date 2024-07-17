@@ -1,9 +1,11 @@
 package com.dev43.jonappms.job;
 
+import com.dev43.jonappms.job.dto.JobWithCompanyDTO;
+
 import java.util.List;
 
 public interface JobService {
-    List<Job> findAll();
+    List<JobWithCompanyDTO> findAll();
 
     void createJob(Job job);
 
