@@ -9,7 +9,6 @@ import com.dev43.jonappms.job.external.Company;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -24,12 +23,11 @@ public class JobServiceImpl implements JobService {
     }
 
     @Override
-    public List<JobWithCompanyDTO> findAll() {    // Rest Template
+    public List<JobWithCompanyDTO> findAll() {
 
         List<Job> jobs = jobRepository.findAll();
-        List<JobWithCompanyDTO> jobWithCompanyDTOs = new ArrayList<>();
 
-        return jobs.stream().map(this::convertToDTO)
+        return jobs.stream().map(this::convertToDTO)        //
                 .collect(Collectors.toList());
     }
 
@@ -38,7 +36,7 @@ public class JobServiceImpl implements JobService {
         JobWithCompanyDTO jobWithCompanyDTO = new JobWithCompanyDTO();
         jobWithCompanyDTO.setJob(job);      // 1
 
-        RestTemplate restTemplate = new RestTemplate();     //
+        RestTemplate restTemplate = new RestTemplate();     // imp
         Company company = restTemplate.getForObject(
                 "http://localhost:8081/companies/" + job.getCompanyId(),
                 Company.class);
