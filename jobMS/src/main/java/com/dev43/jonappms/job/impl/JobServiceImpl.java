@@ -6,6 +6,7 @@ import com.dev43.jonappms.job.JobRepository;
 import com.dev43.jonappms.job.JobService;
 import com.dev43.jonappms.job.dto.JobWithCompanyDTO;
 import com.dev43.jonappms.job.external.Company;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
@@ -16,10 +17,13 @@ import java.util.stream.Collectors;
 @Service
 public class JobServiceImpl implements JobService {
 
-    private final JobRepository jobRepository;
+    private JobRepository jobRepository;
 
-    public JobServiceImpl(JobRepository jobRepository) {
+    private RestTemplate restTemplate;      // InterService Communication
+
+    public JobServiceImpl(JobRepository jobRepository, RestTemplate restTemplate) {
         this.jobRepository = jobRepository;
+        this.restTemplate = restTemplate;
     }
 
     @Override
@@ -33,12 +37,11 @@ public class JobServiceImpl implements JobService {
 
     private JobWithCompanyDTO convertToDTO(Job job){
 
-        JobWithCompanyDTO jobWithCompanyDTO = new JobWithCompanyDTO();
+        JobWithCompanyDTO jobWithCompanyDTO = new JobWithCompanyDTO();      // imp
         jobWithCompanyDTO.setJob(job);      // 1
 
-        RestTemplate restTemplate = new RestTemplate();     // imp
-        Company company = restTemplate.getForObject(
-                "http://localhost:8081/companies/" + job.getCompanyId(),
+        Company company = restTemplate.getForObject(       // restTemplate <- AppConfig.java
+                "http://COMPANY-SERVICE:8081/companies/" + job.getCompanyId(),      
                 Company.class);
         jobWithCompanyDTO.setCompany(company);      // 2
 
@@ -46,15 +49,15 @@ public class JobServiceImpl implements JobService {
 
     }
 
-
     @Override
     public void createJob(Job job) {
         jobRepository.save(job);
     }
 
     @Override
-    public Job getJobById(Long id) {
-        return jobRepository.findById(id).orElse(null);
+    public JobWithCompanyDTO getJobById(Long id) {
+         Job job = jobRepository.findById(id).orElse(null);
+         return convertToDTO(job);
     }
 
     @Override
