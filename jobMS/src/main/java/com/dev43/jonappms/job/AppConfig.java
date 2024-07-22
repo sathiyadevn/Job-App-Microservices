@@ -11,7 +11,9 @@ public class AppConfig {
     @Bean
     @LoadBalanced
     public RestTemplate restTemplate(){
-        return new RestTemplate();
+//        RestTemplate restTemplate = new RestTemplate();
+//        return restTemplate;
+        return new RestTemplate();   // as same as
     }
 
 }
