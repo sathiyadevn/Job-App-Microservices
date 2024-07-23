@@ -4,6 +4,8 @@ package com.dev43.jonappms.job.impl;
 import com.dev43.jonappms.job.Job;
 import com.dev43.jonappms.job.JobRepository;
 import com.dev43.jonappms.job.JobService;
+import com.dev43.jonappms.job.clients.CompanyClient;
+import com.dev43.jonappms.job.clients.ReviewClient;
 import com.dev43.jonappms.job.dto.JobDTO;
 import com.dev43.jonappms.job.external.Company;
 import com.dev43.jonappms.job.external.Review;
@@ -23,11 +25,13 @@ public class JobServiceImpl implements JobService {
 
     private JobRepository jobRepository;
 
-    private RestTemplate restTemplate;      // InterService Communication
+    private CompanyClient companyClient;
+    private ReviewClient reviewClient;
 
-    public JobServiceImpl(JobRepository jobRepository, RestTemplate restTemplate) {
+    public JobServiceImpl(JobRepository jobRepository, CompanyClient companyClient, ReviewClient reviewClient) {
         this.jobRepository = jobRepository;
-        this.restTemplate = restTemplate;
+        this.companyClient = companyClient;
+        this.reviewClient = reviewClient;
     }
 
     @Override
@@ -39,24 +43,13 @@ public class JobServiceImpl implements JobService {
                 .collect(Collectors.toList());
     }
 
-    private JobDTO convertToDTO(Job job){
+    private JobDTO convertToDTO(Job job) {
 
-        //  getForObject()
-        Company company = restTemplate.getForObject(       // restTemplate <- AppConfig.java
-                "http://COMPANY-SERVICE:8081/companies/" + job.getCompanyId(),
-                Company.class);     //
+        Company company = companyClient.getCompany(job.getCompanyId());
 
-        //  exchange()
-        ResponseEntity<List<Review>> reviewResponse = restTemplate.exchange(
-                "http://REVIEW-SERVICE:8083/reviews?companyId=" + job.getCompanyId(),
-                HttpMethod.GET,           // url from GET method
-                null,       // no RequestBody - not a POST method
-                new ParameterizedTypeReference<List<Review>>() {    // return List of Generic type(Review)
-                });
+        List<Review> reviews = reviewClient.getReviews(job.getCompanyId());
 
-        List<Review> reviews = reviewResponse.getBody();
-
-        JobDTO jobDTO = JobMapper.mapToJobDTO(job,company,reviews);  // imp
+        JobDTO jobDTO = JobMapper.mapToJobDTO(job, company, reviews);  // imp
 
         return jobDTO;
 
@@ -69,8 +62,8 @@ public class JobServiceImpl implements JobService {
 
     @Override
     public JobDTO getJobById(Long id) {
-         Job job = jobRepository.findById(id).orElse(null);
-         return convertToDTO(job);
+        Job job = jobRepository.findById(id).orElse(null);
+        return convertToDTO(job);
     }
 
     @Override
