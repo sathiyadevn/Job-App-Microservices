@@ -10,12 +10,10 @@ import com.dev43.jonappms.job.dto.JobDTO;
 import com.dev43.jonappms.job.external.Company;
 import com.dev43.jonappms.job.external.Review;
 import com.dev43.jonappms.job.mapper.JobMapper;
-import org.springframework.core.ParameterizedTypeReference;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.ResponseEntity;
+import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import org.springframework.stereotype.Service;
-import org.springframework.web.client.RestTemplate;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -35,12 +33,19 @@ public class JobServiceImpl implements JobService {
     }
 
     @Override
+    @CircuitBreaker(name = "companyBreaker", fallbackMethod = "companyBreakerFallback")
     public List<JobDTO> findAll() {
 
         List<Job> jobs = jobRepository.findAll();
 
         return jobs.stream().map(this::convertToDTO)        // imp
                 .collect(Collectors.toList());
+    }
+
+    public List<String> companyBreakerFallback(Exception e) {
+        List<String> list = new ArrayList<>();
+        list.add("Default Values");
+        return list;
     }
 
     private JobDTO convertToDTO(Job job) {
