@@ -11,6 +11,7 @@ import com.dev43.jonappms.job.external.Company;
 import com.dev43.jonappms.job.external.Review;
 import com.dev43.jonappms.job.mapper.JobMapper;
 import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
+import io.github.resilience4j.ratelimiter.annotation.RateLimiter;
 import io.github.resilience4j.retry.annotation.Retry;
 import org.springframework.stereotype.Service;
 
@@ -38,7 +39,8 @@ public class JobServiceImpl implements JobService {
     @Override
     // Resilience4J
 //    @CircuitBreaker(name = "companyBreaker", fallbackMethod = "companyBreakerFallback")
-    @Retry(name = "companyBreaker", fallbackMethod = "companyBreakerFallback")
+//    @Retry(name = "companyBreaker", fallbackMethod = "companyBreakerFallback")
+    @RateLimiter(name = "companyBreaker", fallbackMethod = "companyBreakerFallback")
     public List<JobDTO> findAll() {
         System.out.println("Attempt " + ++attempt);
 
