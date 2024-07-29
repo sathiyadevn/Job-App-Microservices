@@ -4,6 +4,7 @@ package com.dev43.companyms.company.impl;
 import com.dev43.companyms.company.Company;
 import com.dev43.companyms.company.CompanyRepository;
 import com.dev43.companyms.company.CompanyService;
+import com.dev43.companyms.company.dto.ReviewMessage;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -55,5 +56,10 @@ public class CompanyServiceImpl implements CompanyService {
     @Override
     public Company getCompanyById(Long id) {
         return companyRepository.findById(id).orElse(null);
+    }
+
+    @Override
+    public void updateCompanyRating(ReviewMessage reviewMessage) {
+        System.out.println("Description of Review Service from RabbitMQ : " + reviewMessage.getDescription());
     }
 }
