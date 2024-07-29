@@ -53,7 +53,13 @@ public class ReviewController {
         if (isReviewDeleted)
             return new ResponseEntity<>("Review Deleted Successfully", HttpStatus.OK);
         return new ResponseEntity<>("Review Not Deleted", HttpStatus.NOT_FOUND);
+    }
 
-
+    @GetMapping("/averageRating")
+    public Double getAverageReview(@RequestParam Long companyId){
+        List<Review> reviewList = reviewService.getAllReviews(companyId);
+        return reviewList.stream()
+                .mapToDouble(Review::getRating)
+                .average().orElse(0.0);
     }
 }
